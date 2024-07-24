@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QR Code Generator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        #qr-code {
+            margin-top: 20px;
+        }
+        #progress-container {
+            width: 100%;
+            max-width: 300px;
+            height: 20px;
+            background-color: #e0e0e0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        #progress-bar {
+            height: 100%;
+            width: 0;
+            background-color: #76c7c0;
+            transition: width 0.1s linear;
+        }
+    </style>
+</head>
+<body>
+    <h1>QR Code Generator</h1>
+    <div id="qr-code"></div>
+    <div id="progress-container">
+        <div id="progress-bar"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        const hardcodedPart = "GM2:V000298772:TU1";
+
+        function generateRandomHex(length = 8) {
+            const characters = '0123456789ABCDEF';
+            let result = '';
+            for (let i = 0; i < length; i++) {
+                result += characters.charAt(Math.floor(Math.random() * characters.length));
+            }
+            return result;
+        }
+
+        function generateQRCode() {
+            const timestamp = Math.floor(Date.now() / 1000);
+            const randomHex = generateRandomHex();
+            const qrCodeData = `${hardcodedPart}:${timestamp}:${randomHex}`;
+            const qrCodeContainer = document.getElementById('qr-code');
+            qrCodeContainer.innerHTML = '';
+            new QRCode(qrCodeContainer, {
+                text: qrCodeData,
+                width: 256,
+                height: 256
+            });
+
+            // Reset progress bar
+            const progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = '0';
+        }
+
+        function updateProgressBar() {
+            const progressBar = document.getElementById('progress-bar');
+            let width = 0;
+            const interval = setInterval(() => {
+                if (width >= 100) {
+                    clearInterval(interval);
+                } else {
+                    width += 1;
+                    progressBar.style.width = width + '%';
+                }
+            }, 100); // Update every 0.1 second to fill in 10 seconds
+        }
+
+        // Generate QR code every 10 seconds and update progress bar
+        setInterval(() => {
+            generateQRCode();
+            updateProgressBar();
+        }, 10000);
+
+        // Generate initial QR code and start progress bar
+        generateQRCode();
+        updateProgressBar();
+    </script>
+</body>
+</html>
